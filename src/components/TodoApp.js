@@ -2,26 +2,11 @@ import React from "react";
 import Header from "./layout/Header";
 import Todos from "./Todos";
 import AddTodo from "./AddTodo";
+import axios from "axios";
 
 class TodoApp extends React.Component {
     state = {
-        todos: [
-            {
-                id: 1,
-                title: "Setup development enviroment",
-                completed: true,
-            },
-            {
-                id: 2,
-                title: "Develop website and add content",
-                completed: false,
-            },
-            {
-                id: 3,
-                title: "Deploy to live server",
-                completed: false,
-            },
-        ]
+        todos: []
     }
 
     render() {
@@ -50,25 +35,38 @@ class TodoApp extends React.Component {
     }
 
     deleteTodo = (id) => {
-        console.log("deleted", id);
-        this.state.todos.splice(id-1,1)
-        this.setState({
-            todos: [
-                ...this.state.todos.filter(todo => {
-                    return todo.id !== id;
-                })
-            ]
-        })
+        axios.delete(`https://jsonplaceholder.typicode.com/todos/${id}`)
+            .then(response => this.setState({
+                todos: [
+                    ...this.state.todos.filter(todo => {
+                        return todo.id !== id;
+                    })
+                ]
+            }))
     }
     addTodo = title =>{
         const newTodo = {
-            id: 4,
             title: title,
             completed: false,
         };
-        this.setState({
-            todos: [...this.state.todos,newTodo]
-        })  
+        axios.post("https://jsonplaceholder.typicode.com/todos", newTodo)
+            .then(response => {
+                console.log(response.data);
+                this.setState({
+                    todos: [...this.state.todos,response.data]
+                })
+            })
+    }
+    componentDidMount() {
+        const config = {
+            params: {
+                _limit : 5
+            }
+        }
+        axios.get("https://jsonplaceholder.typicode.com/todos",config)
+            .then(response => this.setState({
+                todos: response.data
+            }));
     }
 }
 export default TodoApp;
