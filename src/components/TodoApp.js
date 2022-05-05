@@ -2,6 +2,7 @@ import React from "react";
 import Header from "./layout/Header";
 import Todos from "./Todos";
 import AddTodo from "./AddTodo";
+import Footer from "../store/containers/Footer";
 import axios from "axios";
 
 class TodoApp extends React.Component {
@@ -19,6 +20,7 @@ class TodoApp extends React.Component {
                 handleChange={this.handleCheckboxChange}
                 handleDelete={this.deleteTodo}
             />
+            <Footer />
         </div>
         );
     }
