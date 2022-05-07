@@ -1,33 +1,17 @@
-import React from "react";
+import React , {useState,useEffect} from "react";
 import Header from "./layout/Header";
 import Todos from "./Todos";
 import AddTodo from "./AddTodo";
 import Footer from "../store/containers/Footer";
 import axios from "axios";
 
-class TodoApp extends React.Component {
-    state = {
+function TodoApp() {
+    const [state, setState] = useState({
         todos: []
-    }
-
-    render() {
-    return (
-        <div className="container">
-            <Header/>
-            <AddTodo addTodo={this.addTodo}/>
-            <Todos 
-                todos={this.state.todos} 
-                handleChange={this.handleCheckboxChange}
-                handleDelete={this.deleteTodo}
-            />
-            <Footer />
-        </div>
-        );
-    }
-
-    handleCheckboxChange = (id) => {
-        this.setState({
-            todos: this.state.todos.map(todo => {
+    });
+    const handleCheckboxChange = (id) => {
+        setState({
+            todos: state.todos.map(todo => {
                 if( todo.id === id) {
                     todo.completed = !todo.completed
                 }
@@ -36,17 +20,17 @@ class TodoApp extends React.Component {
         })
     }
 
-    deleteTodo = (id) => {
+    const deleteTodo = (id) => {
         axios.delete(`https://jsonplaceholder.typicode.com/todos/${id}`)
-            .then(response => this.setState({
+            .then(response => setState({
                 todos: [
-                    ...this.state.todos.filter(todo => {
+                    ...state.todos.filter(todo => {
                         return todo.id !== id;
                     })
                 ]
             }))
     }
-    addTodo = title =>{
+    const addTodo = title =>{
         const newTodo = {
             title: title,
             completed: false,
@@ -54,21 +38,34 @@ class TodoApp extends React.Component {
         axios.post("https://jsonplaceholder.typicode.com/todos", newTodo)
             .then(response => {
                 console.log(response.data);
-                this.setState({
-                    todos: [...this.state.todos,response.data]
+                setState({
+                    todos: [...state.todos,response.data]
                 })
             })
     }
-    componentDidMount() {
+    useEffect(() => {
         const config = {
             params: {
                 _limit : 5
             }
         }
         axios.get("https://jsonplaceholder.typicode.com/todos",config)
-            .then(response => this.setState({
+            .then(response => setState({
                 todos: response.data
             }));
-    }
+    },[]);
+
+    return (
+        <div className="container">
+            <Header/>
+            <AddTodo addTodo={addTodo}/>
+            <Todos 
+                todos={state.todos} 
+                handleChange={handleCheckboxChange}
+                handleDelete={deleteTodo}
+            />
+            <Footer />
+        </div>
+    );
 }
 export default TodoApp;
